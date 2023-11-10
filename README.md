@@ -1,2 +1,3 @@
-# Vortex_Filament_Python
+# Vortex Filament Simulation
+
 Creating a Vortex Filament Simulation using Python
