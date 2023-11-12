@@ -9,7 +9,7 @@ s = np.array(circle(circlePoints))
 
 # Set up some values as initial conditions
 TOTAL_TIME = 100
-TOTAL_STEPS = 1000
+TOTAL_STEPS = 2000
 IV = np.array( [2,0,0] )
 
 # Simulate the point
