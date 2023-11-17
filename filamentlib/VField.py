@@ -1,4 +1,5 @@
 import numpy as np
+
 class VField():
 # Define various methods of calculating the velocity field at a point
 
@@ -10,7 +11,7 @@ class VField():
         for c in s:
             num = np.cross( curveTangent[:,c], curvePoint - curve[:,c] )
             den = np.linalg.norm(curvePoint - curve[:,c]) ** 3
-            dv.append( num/den )
+            dv.append( np.divide(num,den) )
 
         dv = np.array(dv)
 
