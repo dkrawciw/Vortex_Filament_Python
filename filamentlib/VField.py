@@ -17,13 +17,13 @@ class VField():
 
         v = np.trapz([dv[:,0],dv[:,1],dv[:,2]], s)
         return v
+    
+    # Having a function deal with a list of 3D points in a nxm matrix where m = 3 (3 columns)
+    @staticmethod
+    def BiotSavartPoints(curve, curveTangent, curvePoints):
+        biotSavartPoints = []
 
-        # Having a function deal with a list of 3D points in a nxm matrix where m = 3 (3 columns)
-        @staticmethod
-        def BiotSavartPoints(curve, curveRangent, curvePoints):
-            biotSavartPoints = []
-
-            for curvePoint in range( len(curvePoints[:,0]) ):
-                biotSavart.append( BiotSavartPoint( curve, curveRangent, curvePoint ) )
-
-            return np.array( biotSavartPoints )
+        for curvePoint in range( len(curvePoints[:,0]) ):
+            biotSavartPoints.append( VField.BiotSavartPoint( curve, curveTangent, curvePoint ) )
+        
+        return np.array( biotSavartPoints )
