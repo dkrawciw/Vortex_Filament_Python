@@ -23,7 +23,8 @@ class VField():
     def BiotSavartPoints(curve, curveTangent, curvePoints):
         biotSavartPoints = []
 
-        for curvePoint in range( len(curvePoints[:,0]) ):
+        for i in range( len(curvePoints[0,:]) ):
+            curvePoint = curvePoints[:,i]
             biotSavartPoints.append( VField.BiotSavartPoint( curve, curveTangent, curvePoint ) )
         
         return np.array( biotSavartPoints )
