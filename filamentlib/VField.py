@@ -3,28 +3,22 @@ import numpy as np
 class VField():
 # Define various methods of calculating the velocity field at a point
 
-#    BiotSavart is the general way of calculating the velocity field at a point
+    #BiotSavart is the general way of calculating the velocity field at some given points over a curve with given tangent points
     @staticmethod
-    def BiotSavartPoint(curve, curveTangent, curvePoint):
-        s = range(0,len(curve[0]))
-        dv = []
-        for c in s:
-            num = np.cross( curveTangent[:,c], curvePoint - curve[:,c] )
-            den = np.linalg.norm(curvePoint - curve[:,c]) ** 3
-            dv.append( np.divide(num,den) )
+    def BiotSavart( curve: np.array, curveTangent: np.array, fieldPoints: np.array ):
+        pointFieldStrength = np.zeros( ( len( fieldPoints[0,:] ), len( fieldPoints[:,0] ) ) )
 
-        dv = np.array(dv)
+        s = range( len(curve[0,:]) )
 
-        v = np.trapz([dv[:,0],dv[:,1],dv[:,2]], s)
-        return v
-    
-    # Having a function deal with a list of 3D points in a nxm matrix where m = 3 (3 columns)
-    @staticmethod
-    def BiotSavartPoints(curve, curveTangent, curvePoints):
-        biotSavartPoints = []
+        for i in s:
+            pointDistances = fieldPoints.T.reshape(-1, fieldPoints.shape[0])
+            pointDistances =  pointDistances - curve[:,i]
 
-        for i in range( len(curvePoints[0,:]) ):
-            curvePoint = curvePoints[:,i]
-            biotSavartPoints.append( VField.BiotSavartPoint( curve, curveTangent, curvePoint ) )
-        
-        return np.array( biotSavartPoints )
+            pointNorms = np.linalg.norm(pointDistances, axis=1, keepdims=True)
+            pointNormsCubed = np.power( pointNorms, 3)
+
+            crossProduct = np.cross(curveTangent[: , i], pointDistances )
+            pointFieldStrength += np.divide(crossProduct, pointNormsCubed)
+
+        np.trapz( [pointFieldStrength[:,0], pointFieldStrength[:,1], pointFieldStrength[:,2]], s )
+        return pointFieldStrength
