@@ -6,19 +6,37 @@ class VField():
     #BiotSavart is the general way of calculating the velocity field at some given points over a curve with given tangent points
     @staticmethod
     def BiotSavart( curve: np.array, curveTangent: np.array, fieldPoints: np.array ):
-        pointFieldStrength = np.zeros( ( len( fieldPoints[0,:] ), len( fieldPoints[:,0] ) ) )
+        pointFieldStrength = np.zeros( (len(curve[0,:]), len( fieldPoints[:,0] ), len( fieldPoints[0,:] ) ) )
 
         s = range( len(curve[0,:]) )
 
         for i in s:
-            pointDistances = fieldPoints.T.reshape(-1, fieldPoints.shape[0])
-            pointDistances =  pointDistances - curve[:,i]
+            pointDistances =  fieldPoints - curve[:,i].reshape(-1,1)
 
-            pointNorms = np.linalg.norm(pointDistances, axis=1, keepdims=True)
+            pointNorms = np.linalg.norm(pointDistances, axis=0)
             pointNormsCubed = np.power( pointNorms, 3)
 
-            crossProduct = np.cross(curveTangent[: , i], pointDistances )
-            pointFieldStrength += np.divide(crossProduct, pointNormsCubed)
+            crossProduct = ( np.cross(curveTangent[:,i], pointDistances.T ) ).T
+            pointFieldStrength[i,:,:] = crossProduct / pointNormsCubed
 
-        np.trapz( [pointFieldStrength[:,0], pointFieldStrength[:,1], pointFieldStrength[:,2]], s )
-        return pointFieldStrength
+        v = np.trapz( pointFieldStrength, s , axis=0)
+        return v
+    
+    # This method adds an epsilon in the denominator where the divide by zero error occurs
+    @staticmethod
+    def RegularBiotSavart( curve: np.array, curveTangent: np.array, fieldPoints: np.array, eps ):
+        pointFieldStrength = np.zeros( (len(curve[0,:]), len( fieldPoints[:,0] ), len( fieldPoints[0,:] ) ) )
+
+        s = range( len(curve[0,:]) )
+
+        for i in s:
+            pointDistances =  fieldPoints - curve[:,i].reshape(-1,1)
+
+            pointNorms = np.linalg.norm(pointDistances, axis=0)
+            pointNormsCubed = np.power( pointNorms, 3)
+
+            crossProduct = ( np.cross(curveTangent[:,i], pointDistances.T ) ).T
+            pointFieldStrength[i,:,:] = crossProduct / (pointNormsCubed + eps)
+
+        v = np.trapz( pointFieldStrength, s , axis=0)
+        return v
