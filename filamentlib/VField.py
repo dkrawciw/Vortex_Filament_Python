@@ -24,7 +24,7 @@ class VField():
     
     # This method adds an epsilon in the denominator where the divide by zero error occurs
     @staticmethod
-    def RegularBiotSavart( curve: np.array, curveTangent: np.array, fieldPoints: np.array, eps ):
+    def RegularBiotSavart( curve: np.array, curveTangent: np.array, fieldPoints: np.array, eps=10**-8 ):
         pointFieldStrength = np.zeros( (len(curve[0,:]), len( fieldPoints[:,0] ), len( fieldPoints[0,:] ) ) )
 
         s = range( len(curve[0,:]) )
