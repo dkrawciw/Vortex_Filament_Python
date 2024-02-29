@@ -40,3 +40,15 @@ class VField():
 
         v = np.trapz( pointFieldStrength, s , axis=0)
         return v
+    
+    @staticmethod
+    def KappaBinormal( curve: np.array ):
+        curveTangent = np.gradient(curve)[1]
+        curveNormal = np.gradient(curveTangent)[1]
+        curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
+
+        Kappa = np.divide( np.linalg.norm( curveBinormal ), np.power( np.linalg.norm(curveTangent),3 ) )
+
+        KBApprox = np.multiply(Kappa, curveBinormal)
+
+        return KBApprox
