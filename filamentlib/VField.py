@@ -41,6 +41,7 @@ class VField():
         v = np.trapz( pointFieldStrength, s , axis=0)
         return v
     
+    # Fast Approximation to BiotSavart
     @staticmethod
     def KappaBinormal( curve: np.array ):
         curveTangent = np.gradient(curve)[1]
