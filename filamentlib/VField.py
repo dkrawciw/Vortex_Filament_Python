@@ -3,16 +3,15 @@ import numpy as np
 class VField():
     # Define various methods of calculating the velocity field at a point
     def closedGradient(curve: np.array):
-
         shiftDist = round(curve.shape[1]/2)
 
-        grad = np.gradient(curve)[1]
+        grad = np.gradient(curve,edge_order=2)[1]
         shiftedCurve = np.roll(curve,shiftDist,axis=1)
-        shiftedGrad = np.gradient(shiftedCurve)[1]
+        shiftedGrad = np.gradient(shiftedCurve,edge_order=2)[1]
 
         setBound = round(shiftDist/2)
 
-        grad[:,-setBound-1:-1] = shiftedGrad[:,shiftDist - setBound:shiftDist]
+        grad[:,-setBound-1:-1] = shiftedGrad[:, shiftDist - setBound - 1:shiftDist-1]
         grad[:,0:setBound] = shiftedGrad[:, shiftDist : shiftDist + setBound]
 
         return grad
@@ -58,8 +57,8 @@ class VField():
     # Fast Approximation to BiotSavart
     @staticmethod
     def KappaBinormal( curve: np.array ):
-        curveTangent = np.gradient(curve)[1]
-        curveNormal = np.gradient(curveTangent)[1]
+        curveTangent = np.gradient(curve,edge_order=2)[1]
+        curveNormal = np.gradient(curveTangent,edge_order=2)[1]
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
         Kappa = np.divide( np.linalg.norm( curveBinormal ), np.power( np.linalg.norm(curveTangent),3 ) )
