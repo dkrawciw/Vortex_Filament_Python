@@ -2,19 +2,29 @@ import numpy as np
 
 class VField():
     # Define various methods of calculating the velocity field at a point
-    def closedGradient(curve: np.array):
-        shiftDist = round(curve.shape[1]/2)
+    @staticmethod
+    def closedFirstGradient(arr: np.array):
+        grad = np.zeros((arr.shape[0],arr.shape[1]))
+        for i in range( 1, arr.shape[1] - 1 ):
+            num = arr[:,i+1] - arr[:,i-1]
+            den = np.linalg.norm(arr[:,i+1] - arr[:,i-1])
+            grad[:,i] = np.divide(num, den)
 
-        grad = np.gradient(curve,edge_order=2)[1]
-        shiftedCurve = np.roll(curve,shiftDist,axis=1)
-        shiftedGrad = np.gradient(shiftedCurve,edge_order=2)[1]
-
-        setBound = round(shiftDist/2)
-
-        grad[:,-setBound-1:-1] = shiftedGrad[:, shiftDist - setBound - 1:shiftDist-1]
-        grad[:,0:setBound] = shiftedGrad[:, shiftDist : shiftDist + setBound]
+        grad[:,-1] = (arr[:,0] - arr[:,-2]) / (np.linalg.norm(arr[:,0] - arr[:,-2]))
+        grad[:,0] = (arr[:,1] - arr[:,-1]) / (np.linalg.norm(arr[:,1] - arr[:,-1]))
 
         return grad
+    
+    @staticmethod
+    def closedSecondGradient(arr: np.array):
+        grad = np.zeros((arr.shape[0],arr.shape[1]))
+        for i in range( 1, arr.shape[1] - 1 ):
+            num = arr[:,i+1] - 2*arr[:,i] + arr[:,i-1]
+            den = np.power(np.linalg.norm(arr[:,i+1] - arr[:,i-1]),2)
+            grad[:,i] = np.divide(num, den)
+
+        grad[:,-1] = arr[:,0] - 2*arr[:,-1] + arr[:,-2] / np.power(np.linalg.norm(arr[:,0] - arr[:,-2]),2)
+        grad[:,0] = arr[:,1] - 2*arr[:,0] + arr[:,-1] / np.power(np.linalg.norm(arr[:,1] - arr[:,-1]),2)
 
     #BiotSavart is the general way of calculating the velocity field at some given points over a curve with given tangent points
     @staticmethod
@@ -57,21 +67,8 @@ class VField():
     # Fast Approximation to BiotSavart
     @staticmethod
     def KappaBinormal( curve: np.array ):
-        curveTangent = np.gradient(curve,edge_order=2)[1]
-        curveNormal = np.gradient(curveTangent,edge_order=2)[1]
-        curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
-
-        Kappa = np.divide( np.linalg.norm( curveBinormal ), np.power( np.linalg.norm(curveTangent),3 ) )
-
-        KBApprox = np.multiply(Kappa, curveBinormal)
-
-        return KBApprox
-    
-    # Approximating Closed Shapes
-    @staticmethod
-    def KappaBinormalClosed( curve: np.array ):
-        curveTangent = VField.closedGradient(curve)
-        curveNormal = VField.closedGradient(curveTangent)
+        curveTangent = VField.closedFirstGradient(curve)
+        curveNormal = VField.closedSecondGradient(curve)
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
         Kappa = np.divide( np.linalg.norm( curveBinormal ), np.power( np.linalg.norm(curveTangent),3 ) )
