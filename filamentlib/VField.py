@@ -1,30 +1,42 @@
 import numpy as np
 
 class VField():
-    # Define various methods of calculating the velocity field at a point
+    # Closed Derivative methods
     @staticmethod
-    def closedFirstGradient(arr: np.array):
-        grad = np.zeros((arr.shape[0],arr.shape[1]))
-        for i in range( 1, arr.shape[1] - 1 ):
-            num = arr[:,i+1] - arr[:,i-1]
-            den = np.linalg.norm(arr[:,i+1] - arr[:,i-1])
-            grad[:,i] = np.divide(num, den)
+    def closedFirstGradient(f: np.array, t: np.array = None) -> np.array:
+        if t is None:
+            t = np.linspace(0,1,f.shape[1],endpoint=False)
 
-        grad[:,-1] = (arr[:,0] - arr[:,-2]) / (np.linalg.norm(arr[:,0] - arr[:,-2]))
-        grad[:,0] = (arr[:,1] - arr[:,-1]) / (np.linalg.norm(arr[:,1] - arr[:,-1]))
+        fPlusOne = np.roll( f, -1, axis=1 )
+        fMinusOne = np.roll( f, 1, axis=1 )
+        
+        # Define the time step for every value of t
+        h = np.roll(t, -1) - t
+        h[-1] = h[0]
+
+        num = fPlusOne - fMinusOne
+        den = 2 * h
+        grad = np.divide(num,den)
 
         return grad
     
     @staticmethod
-    def closedSecondGradient(arr: np.array):
-        grad = np.zeros((arr.shape[0],arr.shape[1]))
-        for i in range( 1, arr.shape[1] - 1 ):
-            num = arr[:,i+1] - 2*arr[:,i] + arr[:,i-1]
-            den = np.power(np.linalg.norm(arr[:,i+1] - arr[:,i-1]),2)
-            grad[:,i] = np.divide(num, den)
+    def closedSecondGradient(f: np.array, t: np.array = None):
+        if t is None:
+            t = np.linspace(0,1,f.shape[1],endpoint=False)
 
-        grad[:,-1] = arr[:,0] - 2*arr[:,-1] + arr[:,-2] / np.power(np.linalg.norm(arr[:,0] - arr[:,-2]),2)
-        grad[:,0] = arr[:,1] - 2*arr[:,0] + arr[:,-1] / np.power(np.linalg.norm(arr[:,1] - arr[:,-1]),2)
+        fPlusOne = np.roll( f, -1, axis=1 )
+        fMinusOne = np.roll( f, 1, axis=1 )
+
+        # Define the time step for every value of t
+        h = np.roll(t, -1) - t
+        h[-1] = h[0]
+
+        num = fPlusOne - 2*f + fMinusOne
+        den = np.power(h,2)
+        grad = num/den
+
+        return grad
 
     #BiotSavart is the general way of calculating the velocity field at some given points over a curve with given tangent points
     @staticmethod
@@ -71,7 +83,7 @@ class VField():
         curveNormal = VField.closedSecondGradient(curve)
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
-        Kappa = np.divide( np.linalg.norm( curveBinormal ), np.power( np.linalg.norm(curveTangent),3 ) )
+        Kappa = np.divide( np.linalg.norm( curveBinormal, axis=0 ), np.power( np.linalg.norm(curveTangent, axis=0),3 ) )
 
         KBApprox = np.multiply(Kappa, curveBinormal)
 
