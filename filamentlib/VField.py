@@ -78,9 +78,12 @@ class VField():
     
     # Fast Approximation to BiotSavart
     @staticmethod
-    def KappaBinormal( curve: np.array ):
-        curveTangent = VField.closedFirstGradient(curve)
-        curveNormal = VField.closedSecondGradient(curve)
+    def KappaBinormal( curve: np.array, t: np.array = None ):
+        if t is None:
+            t = np.linspace(0,1,curve.shape[1])
+        
+        curveTangent = VField.closedFirstGradient(curve, t)
+        curveNormal = VField.closedSecondGradient(curve, t)
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
         Kappa = np.divide( np.linalg.norm( curveBinormal, axis=0 ), np.power( np.linalg.norm(curveTangent, axis=0),3 ) )
