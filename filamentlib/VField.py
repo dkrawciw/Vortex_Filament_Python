@@ -82,12 +82,20 @@ class VField():
         if t is None:
             t = np.linspace(0,1,curve.shape[1])
         
-        curveTangent = VField.closedFirstGradient(curve, t)
-        curveNormal = VField.closedSecondGradient(curve, t)
+        # Finding the unit tangent vector
+        dc = VField.closedFirstGradient(curve, t)
+        curveTangent = np.divide( dc, np.linalg.norm(dc, axis=0) )
+
+        # Finding the unit normal vector
+        d2c = VField.closedSecondGradient(curve, t)
+        curveNormal = np.divide( d2c, np.linalg.norm(d2c, axis=0) )
+
+        # Using the unit tangent and unit normal vectors to find the binormal vector
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
-        Kappa = np.divide( np.linalg.norm( curveBinormal, axis=0 ), np.power( np.linalg.norm(curveTangent, axis=0),3 ) )
-
+        # Defining Kappa
+        dTdt = VField.closedFirstGradient(curveTangent,t)
+        Kappa = np.divide( np.linalg.norm( dTdt,  axis=0 ), np.linalg.norm( dc, axis=0 ) )
         KBApprox = np.multiply(Kappa, curveBinormal)
 
         return KBApprox
