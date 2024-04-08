@@ -99,3 +99,16 @@ class VField():
         KBApprox = np.multiply(Kappa, curveBinormal)
 
         return KBApprox
+    
+    # Functions to update a curve over time
+    # Euler's method on Kappa Binormal
+    def EulerKappaBinormal( curve:np.array, t: np.array, deltaStep: float, maxSteps: int):
+        if t is None:
+            t = np.linspace(0,1,curve.shape[1])
+
+        curves = np.zeros( (maxSteps + 1,curve.shape[0],curve.shape[1]) )
+        curves[0,:,:] = curve
+
+        for i in range(1,maxSteps+1):
+            curves[i,:,:] = curves[i-1, :, :] + deltaStep * VField.KappaBinormal(curves[i-1,:,:], t)
+        return curves
