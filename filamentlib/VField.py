@@ -1,9 +1,10 @@
 import numpy as np
+from scipy.integrate import solve_ivp
 
 class VField():
     # Closed Derivative methods
     @staticmethod
-    def closedFirstGradient(f: np.array, t: np.array = None) -> np.array:
+    def __closedFirstGradient(f: np.array, t: np.array = None) -> np.array:
         if t is None:
             t = np.linspace(0,1,f.shape[1],endpoint=False)
 
@@ -21,7 +22,7 @@ class VField():
         return grad
     
     @staticmethod
-    def closedSecondGradient(f: np.array, t: np.array = None):
+    def __closedSecondGradient(f: np.array, t: np.array = None):
         if t is None:
             t = np.linspace(0,1,f.shape[1],endpoint=False)
 
@@ -78,23 +79,20 @@ class VField():
     
     # Fast Approximation to BiotSavart
     @staticmethod
-    def KappaBinormal( curve: np.array, t: np.array = None ):
-        if t is None:
-            t = np.linspace(0,1,curve.shape[1])
-        
+    def KappaBinormal( curve: np.array, meshpoints: np.array ):
         # Finding the unit tangent vector
-        dc = VField.closedFirstGradient(curve, t)
+        dc = VField.__closedFirstGradient(curve, meshpoints)
         curveTangent = np.divide( dc, np.linalg.norm(dc, axis=0) )
 
         # Finding the unit normal vector
-        d2c = VField.closedSecondGradient(curve, t)
+        d2c = VField.__closedSecondGradient(curve, meshpoints)
         curveNormal = np.divide( d2c, np.linalg.norm(d2c, axis=0) )
 
         # Using the unit tangent and unit normal vectors to find the binormal vector
         curveBinormal = np.cross(curveTangent,curveNormal, axisa=0, axisb=0, axisc=0)
 
         # Defining Kappa
-        dTdt = VField.closedFirstGradient(curveTangent,t)
+        dTdt = VField.__closedFirstGradient(curveTangent,meshpoints)
         Kappa = np.divide( np.linalg.norm( dTdt,  axis=0 ), np.linalg.norm( dc, axis=0 ) )
         KBApprox = np.multiply(Kappa, curveBinormal)
 
@@ -102,13 +100,36 @@ class VField():
     
     # Functions to update a curve over time
     # Euler's method on Kappa Binormal
-    def EulerKappaBinormal( curve:np.array, t: np.array, deltaStep: float, maxSteps: int):
-        if t is None:
-            t = np.linspace(0,1,curve.shape[1])
-
+    @staticmethod
+    def EulerKappaBinormal( curve:np.array, meshpoints: np.array, deltaStep: float, maxSteps: int):
         curves = np.zeros( (maxSteps + 1,curve.shape[0],curve.shape[1]) )
         curves[0,:,:] = curve
 
         for i in range(1,maxSteps+1):
-            curves[i,:,:] = curves[i-1, :, :] + deltaStep * VField.KappaBinormal(curves[i-1,:,:], t)
+            curves[i,:,:] = curves[i-1, :, :] + deltaStep * VField.KappaBinormal(curves[i-1,:,:], meshpoints)
+        return curves
+    
+    @staticmethod
+    def __solve_ivp_KappaBinormal(curve:np.array, meshpoints:np.array) -> np.array:
+        
+        curve = curve.reshape( (3, meshpoints.shape[0]) )
+        KBApprox = VField.KappaBinormal( curve, meshpoints )
+
+        return KBApprox.flatten()
+
+    @staticmethod
+    def SolveKappaBinormal( curve:np.array, meshpoints: np.array, tspan: list, method: str = 'RK45' ) -> np.array:
+        
+        # Prepare the function and the initial condition to be put through scipy.integrate.solve_ivp
+        y0 = curve.flatten()
+        KBEqn = lambda t,y: VField.__solve_ivp_KappaBinormal( y, meshpoints )
+
+        # solve the system
+        soln = solve_ivp( KBEqn, tspan, y0, method=method )
+
+        # Get the simulation curves to be in a standard format
+        curves = np.zeros( (soln.y.shape[1], curve.shape[0], curve.shape[1]) )
+        for i in range( soln.y.shape[1] ):
+            curves[i,:,:] = soln.y[:,i].reshape( curve.shape )
+
         return curves
