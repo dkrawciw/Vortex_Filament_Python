@@ -111,14 +111,20 @@ class VField():
     
     @staticmethod
     def __solve_ivp_KappaBinormal(curve:np.array, meshpoints:np.array) -> np.array:
-        
         curve = curve.reshape( (3, meshpoints.shape[0]) )
         KBApprox = VField.KappaBinormal( curve, meshpoints )
 
         return KBApprox.flatten()
 
     @staticmethod
-    def SolveKappaBinormal( curve:np.array, meshpoints: np.array, tspan: list, method: str = 'RK45' ) -> np.array:
+    def __solve_ivp_BiotSavart( curve:np.array, meshpoints:np.array, eps:float ) -> np.array:
+        curve = curve.reshape( (3,meshpoints.shape[0]) )
+        BSStep = VField.RegularBiotSavart( curve, VField.__closedFirstGradient(curve, meshpoints), curve, eps )
+
+        return BSStep.flatten()
+
+    @staticmethod
+    def EvolveKappaBinormal( curve:np.array, meshpoints: np.array, tspan: list, method: str = 'RK45' ) -> np.array:
         
         # Prepare the function and the initial condition to be put through scipy.integrate.solve_ivp
         y0 = curve.flatten()
@@ -133,3 +139,18 @@ class VField():
             curves[i,:,:] = soln.y[:,i].reshape( curve.shape )
 
         return curves
+    
+    @staticmethod
+    def EvolveBiotSavartRegular( curve:np.array, meshpoints: np.array, eps:float, tspan: list, method: str = 'RK45' ) -> np.array:
+        y0 = curve.flatten()
+        BSEqn = lambda t,y: VField.__solve_ivp_BiotSavart( y, meshpoints, eps )
+
+        soln = solve_ivp( BSEqn, tspan, y0, method )
+
+        # Get the simulation curves to be in a standard format
+        curves = np.zeros( (soln.y.shape[1], curve.shape[0], curve.shape[1]) )
+        for i in range( soln.y.shape[1] ):
+            curves[i,:,:] = soln.y[:,i].reshape( curve.shape )
+
+        return curves
+        
