@@ -1,1 +1,5 @@
-from filamentlib.VField import VField
+from filamentlib.BiotSavart import BiotSavart
+from filamentlib.RegularBiotSavart import RegularBiotSavart
+from filamentlib.KappaBinormal import KappaBinormal
+from filamentlib.EvolveKappaBinormal import EvolveKappaBinormal
+from filamentlib.EvolveRegularBiotSavart import EvolveRegularBiotSavart
