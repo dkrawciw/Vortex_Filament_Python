@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='filamentlib',
-    version='0.1.1',
+    version='0.1.2',
     description='Simulate the evolution of any given vortex filament over time',
     packages=find_packages(),
     long_description=open('README.md').read(),

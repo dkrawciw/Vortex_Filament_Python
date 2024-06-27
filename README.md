@@ -19,7 +19,7 @@ Example Code:
     from filamentlib import EvolveKappaBinormal
 
     # Creating the initial curve with 100 initial meshpoints from -pi to pi
-    meshpoints = np.linspace(-np.pi,np.pi,100,endpoints=False)  
+    meshpoints = np.linspace(-np.pi,np.pi,100,endpoint=False)  
     f = lambda t: [ np.cos(t), np.sin(t), t*0 ]  
     curve = np.array( f(meshpoints) )
 
