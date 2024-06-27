@@ -1,5 +1,5 @@
 import numpy as np
-from ClosedDerivatives import closedFirstGradient, closedSecondGradient
+from filamentlib.ClosedDerivatives import closedFirstGradient, closedSecondGradient
 
 
 def KappaBinormal( curve: np.array, meshpoints: np.array ):

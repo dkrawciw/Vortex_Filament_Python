@@ -1,5 +1,5 @@
 import numpy as np
-from KappaBinormal import KappaBinormal
+from filamentlib.KappaBinormal import KappaBinormal
 from scipy.integrate import solve_ivp
 
 # Functions to update a curve over time

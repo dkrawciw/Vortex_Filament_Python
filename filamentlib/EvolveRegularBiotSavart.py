@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from ClosedDerivatives import closedFirstGradient
-from RegularBiotSavart import RegularBiotSavart
+from filamentlib.ClosedDerivatives import closedFirstGradient
+from filamentlib.RegularBiotSavart import RegularBiotSavart
 
 # Method to flatten and unflatten inputted lists of curve points
 # Definitely really inefficient but I haven't thought of a better way to use scipy's solve_ivp method without flattening the matrix

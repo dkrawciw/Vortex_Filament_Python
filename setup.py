@@ -1,15 +1,12 @@
 from setuptools import find_packages, setup
 
-with open('filamentlib/README.md','r') as f:
-    long_description = f.read()
 
 setup(
     name='filamentlib',
-    version='0.0.10',
+    version='0.1.1',
     description='Simulate the evolution of any given vortex filament over time',
-    package_dir={'':'filamentlib'},
-    packages=find_packages(where='filamentlib'),
-    long_description=long_description,
+    packages=find_packages(),
+    long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     author='Daniel Krawciw',
     author_email='dkrawciw@mines.edu',
